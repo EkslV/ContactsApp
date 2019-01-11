@@ -1,5 +1,6 @@
 package com.android.test.contactapp;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -21,11 +22,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         sharedPreferences = getSharedPreferences("MY_PREFS", MODE_PRIVATE);
-        boolean isLogedIn = sharedPreferences.getBoolean("IS_LOGED_IN", false);
+        boolean isLoggedIn = sharedPreferences.getBoolean("IS_LOGGED_IN", false);
 
-        if (isLogedIn) {
-            // todo start next screen with user data.
-            // finish();
+        if (isLoggedIn) {
+            startActivity(new Intent(this, ProfileActivity.class));
+            finish();
         }
 
         tilName = findViewById(R.id.tilName);
@@ -43,7 +44,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.saveBtn) {
+            if (String.valueOf(editName.getText()).isEmpty()) {
+                tilName.setError("Data not valid");
+            } else if (String.valueOf(editEmail.getText()).isEmpty()) {
+                tilEmail.setError("Data not valid");
+            } else if (String.valueOf(editPhone.getText()).isEmpty()) {
+                tilPhone.setError("Data not valid");
+            } else {
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("NAME", String.valueOf(editName.getText()));
+                editor.putString("EMAIL", String.valueOf(editEmail.getText()));
+                editor.putString("PHONE", String.valueOf(editPhone.getText()));
+                editor.putBoolean("IS_LOGGED_IN", true);
+                editor.apply();
 
+                startActivity(new Intent(this, ProfileActivity.class));
+                finish();
+            }
         }
     }
 }
