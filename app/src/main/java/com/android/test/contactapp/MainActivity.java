@@ -39,6 +39,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         saveBtn = findViewById(R.id.saveBtn);
         saveBtn.setOnClickListener(this);
+
+        if (sharedPreferences.getString("NAME", null) != null) {
+            editName.setText(sharedPreferences.getString("NAME", null));
+            editEmail.setText(sharedPreferences.getString("EMAIL", null));
+            editPhone.setText(sharedPreferences.getString("PHONE", null));
+        }
     }
 
     @Override
