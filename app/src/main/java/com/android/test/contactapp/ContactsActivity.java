@@ -1,5 +1,7 @@
 package com.android.test.contactapp;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,6 +14,11 @@ import android.widget.ListView;
 import com.android.test.contactapp.adapters.ListViewAdapter;
 import com.android.test.contactapp.adapters.RecyclerContactAdapter;
 import com.android.test.contactapp.models.Contact;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,22 +34,53 @@ public class ContactsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contacts);
 
-        createContacts();
+        getContactsFromDB();
+        contacts = new ArrayList<>();
         recyclerView = findViewById(R.id.recyclerView);
         LinearLayoutManager manager = new LinearLayoutManager(this);
-        adapter = new RecyclerContactAdapter(contacts);
         recyclerView.setLayoutManager(manager);
-        recyclerView.setAdapter(adapter);
         RecyclerView.ItemDecoration decoration =
                 new DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
         recyclerView.addItemDecoration(decoration);
     }
 
-    private void createContacts() {
-        contacts = new ArrayList<>();
-        for (int i = 0; i < 15; i++) {
-            contacts.add(new Contact("name " + i, "", "058111111" + i));
-        }
+    private void getContactsFromDB() {
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("users");
+        reference.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                if (dataSnapshot.exists()) {
+                    Contact contact = dataSnapshot.getValue(Contact.class);
+                    contacts.add(contact);
+                    if (adapter == null) {
+                        adapter = new RecyclerContactAdapter(contacts);
+                        recyclerView.setAdapter(adapter);
+                    }
+
+                    adapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
 }

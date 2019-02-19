@@ -1,18 +1,31 @@
 package com.android.test.contactapp.models;
 
+import com.google.firebase.database.PropertyName;
+
 public class Contact {
 
+    private String key;
     private String name;
     private String email;
+    @PropertyName("phoneNumber")
     private String phone;
 
     public Contact() {
     }
 
-    public Contact(String name, String email, String phone) {
+    public Contact(String key, String name, String email, String phone) {
+        this.key = key;
         this.name = name;
         this.email = email;
         this.phone = phone;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
     }
 
     public String getName() {

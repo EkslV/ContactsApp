@@ -12,9 +12,10 @@ import android.widget.TextView;
 
 public class ProfileActivity extends AppCompatActivity implements View.OnClickListener {
 
+    private static final int GLOBAL_CHAT = 1;
     private TextView nameTxt, emailTxt, phoneTxt;
     private SharedPreferences sharedPreferences;
-    private Button showContactsBtn;
+    private Button showContactsBtn, showGlobalChat;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +28,9 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
         showContactsBtn = findViewById(R.id.showContactsBtn);
         showContactsBtn.setOnClickListener(this);
+
+        showGlobalChat = findViewById(R.id.showGlobalChat);
+        showGlobalChat.setOnClickListener(this);
 
         sharedPreferences = getSharedPreferences("MY_PREFS", MODE_PRIVATE);
         nameTxt.setText(String.valueOf(nameTxt.getText()
@@ -69,6 +73,12 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         switch (view.getId()) {
             case R.id.showContactsBtn:
                 startActivity(new Intent(this, ContactsActivity.class));
+                finish();
+                break;
+            case R.id.showGlobalChat:
+                Intent intent = new Intent(this, ChatActivity.class);
+                intent.putExtra("CHAT_TYPE", GLOBAL_CHAT);
+                startActivity(intent);
                 finish();
                 break;
         }

@@ -2,12 +2,21 @@ package com.android.test.contactapp;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+
+import com.android.test.contactapp.models.Contact;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -20,6 +29,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        FirebaseApp.initializeApp(this);
 
         sharedPreferences = getSharedPreferences("MY_PREFS", MODE_PRIVATE);
         boolean isLoggedIn = sharedPreferences.getBoolean("IS_LOGGED_IN", false);
@@ -64,9 +75,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 editor.putBoolean("IS_LOGGED_IN", true);
                 editor.apply();
 
+                setUserToDB();
+
                 startActivity(new Intent(this, ProfileActivity.class));
                 finish();
             }
         }
+    }
+
+    private void setUserToDB() {
+        Contact myContact = new Contact(
+                "",
+                String.valueOf(editName.getText()),
+                String.valueOf(editEmail.getText()),
+                String.valueOf(editPhone.getText()));
+
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("users");
+        reference.push().setValue(myContact, new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
+                databaseReference.child("key").setValue(databaseReference.getKey());
+
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("KEY", databaseReference.getKey());
+                editor.apply();
+            }
+        });
     }
 }
